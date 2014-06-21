@@ -5,6 +5,8 @@
 var request = require('request');
 var cheerio = require('cheerio');
 var _ = require('lodash');
+var fs = require('fs');
+var path = require('path');
 
 var whitelist = [
   'middelheim',
@@ -16,6 +18,11 @@ var baseURL = 'https://www.uantwerpen.be';
 var result = [];
 // assume this is in /scripts
 var file = '../default/files/scrapy/menulinks.json';
+var menuDir = 'weekmenus'
+
+fs.mkdir(menuDir, function(err) {
+   // meh
+});
 
 request('https://www.uantwerpen.be/nl/campusleven/eten/studentenrestaurants/weekmenu-s-/#', function(error, response, html) {
     if (!error && response.statusCode == 200) {
@@ -30,13 +37,19 @@ request('https://www.uantwerpen.be/nl/campusleven/eten/studentenrestaurants/week
               name: title,
               url: href
             });
-          })
+            var thathref = href;
+            var req = request(baseURL + thathref);
+            req.on('response', function(res) {
+                console.log('writing to ' + menuDir + path.sep + path.basename(thathref));
+                res.pipe(fs.createWriteStream(menuDir + path.sep + path.basename(thathref)));
+            });
+          });
         }
       });
     } else {
       console.log('Something went terribly wrong with loading the page.');
     }
-  var fs = require('fs');
+  console.log(result);
   fs.writeFile(file, result, {}, function() {
      // finished
   });
