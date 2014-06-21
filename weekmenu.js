@@ -13,7 +13,9 @@ var whitelist = [
 ];
 
 var baseURL = 'https://www.uantwerpen.be';
-var result = []
+var result = [];
+// assume this is in /scripts
+var file = '../default/files/scrapy/menulinks.json';
 
 request('https://www.uantwerpen.be/nl/campusleven/eten/studentenrestaurants/weekmenu-s-/#', function(error, response, html) {
     if (!error && response.statusCode == 200) {
@@ -34,5 +36,8 @@ request('https://www.uantwerpen.be/nl/campusleven/eten/studentenrestaurants/week
     } else {
       console.log('Something went terribly wrong with loading the page.');
     }
-  console.log(result);
+  var fs = require('fs');
+  fs.writeFile(file, result, {}, function() {
+     // finished
+  });
 });
